@@ -6,16 +6,11 @@ from sklearn.model_selection import StratifiedGroupKFold
 import rampwf as rw
 import numpy as np
 
-problem_title = "Party prediction from loyalty data"
+problem_title = "Political party prediction from deputies data"
 
-
-remove_deputies_with_no_party ='NI'
-
-columns_to_keep = ['id',
-                   'civ',
+columns_to_keep = ['civ',
                    'age',
                    'experienceDepute',
-                   'groupeAbrev', 
                    'scoreParticipation',
                    'scoreParticipationSpecialite',
                    'scoreLoyaute',
@@ -34,7 +29,6 @@ int_to_cat = {
     9: "ECOLO",
 }
 
-# Mapping categories to int
 cat_to_int = {v: k for k, v in int_to_cat.items()}
 
 _parties_label_int = list(int_to_cat)
@@ -50,60 +44,17 @@ score_types = [
     rw.score_types.Accuracy(name="acc", precision=3),
 ]
 
-def convert_to_days(value):
-
-    if 'nan' in str(value):
-        return value
-    
-    number, time = value.split(' ')
-    
-    if time == 'mois':
-        return int(number) * 30.4167
-    elif time == 'ans' or time == 'an':
-        return int(number) * 365  
-    else:
-        return int(number)
-    
-def convert_gender(value):
-    if str(value).strip() == "Mme":
-        return 0
-    else:
-        return 1
-
-
 def _get_data(path = ".",split ="train"):
-    data_df = pd.read_csv(os.path.join(path, "data", split + "_deputes-actives" + ".csv"))
-    data_df['experienceDepute'] = data_df['experienceDepute'].apply(convert_to_days)
-    data_df['civ'] = data_df['civ'].apply(convert_gender)
-    
-    data_df = data_df.loc[:, columns_to_keep]
-    remove_data = data_df[(data_df['groupeAbrev'] == remove_deputies_with_no_party) | (data_df['groupeAbrev'] == '2024-02-20')].index
-    cleaned_data_df = data_df.drop(remove_data)
-
-
- 
-
-    data_df["groupeAbrev"] = data_df["groupeAbrev"].astype("category")
-
-    X_data = ['civ',
-              'age',
-              'experienceDepute',
-              'scoreParticipation',
-              'scoreParticipationSpecialite',
-              'scoreLoyaute',
-              'scoreMajorite']
-        
-    X = cleaned_data_df.loc[:, X_data]
-    y = np.array(cleaned_data_df["groupeAbrev"].map(cat_to_int).fillna(-1).astype("int8"))
+    data_df = pd.read_csv(os.path.join(path, "data","public", split + ".csv"))
+    X = data_df.loc[:, columns_to_keep]
+    y = np.array(data_df["groupeAbrev"].map(cat_to_int).fillna(-1).astype("int8"))
 
     return X,y
 
 def get_train_data(path="."):
-    data = pd.read_csv(os.path.join(path, "data", "train" + "_deputes-actives" + ".csv"))
+    data = pd.read_csv(os.path.join(path, "data", "public", "train" + ".csv"))
     data_df = data.copy()
-    remove_data = data_df[(data_df['groupeAbrev'] == remove_deputies_with_no_party) | (data_df['groupeAbrev'] == '2024-02-20')].index
-    cleaned_data_df = data_df.drop(remove_data)
-    SampleID = cleaned_data_df["id"]
+    SampleID = data_df["id"]
     global groups
     groups = SampleID
     return _get_data(path, "train")
