@@ -2,3 +2,4 @@
 /data
 *.pyc
 /data/public/
+/.ipynb_checkpoints
