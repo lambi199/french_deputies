@@ -51,7 +51,7 @@ def main(output_dir='data'):
     df_train.to_csv(os.path.join('data', 'train.csv'), index=False)
     df_train.to_csv(os.path.join('data', 'public', 'train.csv'), index=False)
     print('Train dataset created')
-    df_train.to_csv(os.path.join('data', 'test.csv'), index=False)
+    df_test.to_csv(os.path.join('data', 'test.csv'), index=False)
     df_test.to_csv(os.path.join('data', 'public', 'test.csv'), index=False)
     print('Test dataset created')
 
